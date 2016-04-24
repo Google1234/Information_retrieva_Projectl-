@@ -14,7 +14,7 @@ class neteaseSpider(scrapy.spiders.Spider):
     links_dic={"http://news.163.com/":"begin"}#访问的网页，以字典的形式实现
                                                  #目标网页：父网页
     length=1
-    crawl_number=2000                            #需要爬取网页的数目
+    crawl_number=50                            #需要爬取网页的数目
     file_object = open('dic.txt', 'w')          #保存爬取的链接和其父节点，便于分析爬取路径，从而分析质量
     has_write=False                                 #为保证在写文件结束后能够正常关闭文件
     def parse(self,response):

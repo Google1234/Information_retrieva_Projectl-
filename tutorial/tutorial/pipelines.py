@@ -6,6 +6,13 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-class TutorialPipeline(object):
+from scrapy.exceptions import DropItem
+class checkPipeline(object):
+    min_length=10
     def process_item(self, item, spider):
-        return item
+        if item['keywords'] and item['title'] and len(item['content'])>self.min_length:
+            return item
+        else:
+            raise DropItem("Missing value" % item)
+
+
