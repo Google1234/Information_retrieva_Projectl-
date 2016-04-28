@@ -16,3 +16,12 @@ class neteaseItem(scrapy.Item):
     content=scrapy.Field() #正文
     link=scrapy.Field()    #链接
     pass
+
+class toutiaoItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
+    keywords=scrapy.Field()#关键字
+    title=scrapy.Field()   #标题
+    content=scrapy.Field() #正文
+    link=scrapy.Field()    #链接
+    pass
