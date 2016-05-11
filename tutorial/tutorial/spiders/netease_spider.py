@@ -48,6 +48,7 @@ class neteaseSpider(scrapy.spiders.Spider):
             self.data_file.write('#####')
             self.data_file.write(link)
             self.data_file.write('#####')
+            self.data_file.write('\n')
             self.id+=1
             #写链接到txt
             self.dict_file.write(link)
@@ -57,16 +58,17 @@ class neteaseSpider(scrapy.spiders.Spider):
         links=response.xpath('//a/@href').extract()
         for url in links:
             if re.match(self.domains,url):
-                if self.links_dic.has_key(url)==False:
-                    if self.id<self.crawl_number:
-                        self.links_dic[url]=response.url
-                        #写爬取链接至txt文件
-                        self.file_object.write(response.url)
-                        self.file_object.write('\t')
-                        self.file_object.write(url)
-                        self.file_object.write('\n')
-                        #self.crawl_count+=1
-                        yield scrapy.Request(url, callback=self.parse)
+                if re.match(self.reject[0],url)==None and re.match(self.reject[1],url)==None:#不追踪reject中存储的网页链接
+                    if self.links_dic.has_key(url)==False:
+                        if self.id<self.crawl_number:
+                            self.links_dic[url]=response.url
+                            #写爬取链接至txt文件
+                            self.file_object.write(response.url)
+                            self.file_object.write('\t')
+                            self.file_object.write(url)
+                            self.file_object.write('\n')
+                            #self.crawl_count+=1
+                            yield scrapy.Request(url, callback=self.parse)
         #结束写文件时需要关闭file
         if self.id>=self.crawl_number and self.has_write==False:
             self.file_object.close()
