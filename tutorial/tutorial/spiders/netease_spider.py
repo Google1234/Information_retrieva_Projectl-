@@ -8,14 +8,14 @@ import json
 class neteaseSpider(scrapy.spiders.Spider):
     name = "netease"#网易
     domains = "http://news.163.com/"
-    reject=["http://news.163.com/photoset/","http://news.163.com/photo/"] #实际测试中爬取10万条，有1万条左右都是只有图片，没有文字
+    reject=["http://news.163.com/photoset/","http://news.163.com/photo/","http://news.163.com/editor"] #实际测试中爬取10万条，有1万条左右都是只有图片，没有文字
     start_urls = [
         "http://news.163.com/"
     ]
     links_dic={"http://news.163.com/":"begin"}#访问的网页，以字典的形式实现
                                                  #目标网页：父网页
     id=1
-    crawl_number=50                            #需要爬取网页的数目
+    crawl_number=100                            #需要爬取网页的数目
     #min_length=10                               #网页文本大小阈值，小于阈值，不保存至txt
     file_object = open('netease_crawl_path.txt', 'w')          #保存爬取的链接和其父节点，便于分析爬取路径，从而分析质量
     data_file = open('netease_data.txt', 'w')
@@ -23,8 +23,8 @@ class neteaseSpider(scrapy.spiders.Spider):
     has_write=False                                 #为保证在写文件结束后能够正常关闭文件
     def parse(self,response):
         #keyword=response.xpath('//head/meta[@name="keywords"]/@content').extract()
-        title=response.xpath('//div[@class="post_content_main"]/h1/text()').extract()
-        content=response.xpath('//div[@class="post_text"]/p/text()').extract()
+        title=response.xpath('//div/h1/text()').extract()
+        content=response.xpath('//div/p/text()').extract()
         link=response.url
         #存 json文件
         '''
@@ -58,7 +58,7 @@ class neteaseSpider(scrapy.spiders.Spider):
         links=response.xpath('//a/@href').extract()
         for url in links:
             if re.match(self.domains,url):
-                if re.match(self.reject[0],url)==None and re.match(self.reject[1],url)==None:#不追踪reject中存储的网页链接
+                if re.match(self.reject[0],url)==None and re.match(self.reject[1],url)==None and re.match(self.reject[2],url)==None:#不追踪reject中存储的网页链接
                     if self.links_dic.has_key(url)==False:
                         if self.id<self.crawl_number:
                             self.links_dic[url]=response.url
