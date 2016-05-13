@@ -1,9 +1,8 @@
 #-*- coding: UTF-8 -*-
 #scrapy crawl netease -o netease.json
 import scrapy
-from ..items import neteaseItem
 import re
-import json
+
 
 class neteaseSpider(scrapy.spiders.Spider):
     name = "netease"#网易
@@ -53,6 +52,7 @@ class neteaseSpider(scrapy.spiders.Spider):
             self.buff.append('#####')
             for i in range(len(content)):
                 self.buff.append(content[i].encode('utf-8'))
+            self.buff.append('#####')
             self.buff.append(link)
             self.buff.append('#####\n')
             self.buff_link.append(link)
