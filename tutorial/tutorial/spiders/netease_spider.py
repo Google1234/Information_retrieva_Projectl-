@@ -15,7 +15,7 @@ class neteaseSpider(scrapy.spiders.Spider):
     links_dic={"http://news.163.com/":"begin"}#访问的网页，以字典的形式实现
                                                  #目标网页：父网页
     id=1
-    crawl_number=50000                           #需要爬取网页的数目
+    crawl_number=100000                           #需要爬取网页的数目
     #file_object = open('netease_crawl_path.txt', 'w')          #保存爬取的链接和其父节点，便于分析爬取路径，从而分析质量
     #file_object.close()
     data_file = open('netease_data.txt', 'w')
@@ -28,7 +28,7 @@ class neteaseSpider(scrapy.spiders.Spider):
     has_write=False                                 #为保证在写文件结束后能够正常关闭文件
     def parse(self,response):
         #keyword=response.xpath('//head/meta[@name="keywords"]/@content').extract()
-        title=response.xpath('//div/h1/text()').extract()
+        title=response.xpath('//head/title/text()').extract()
         content=response.xpath('//div/p/text()').extract()
         link=response.url
         #存 json文件
