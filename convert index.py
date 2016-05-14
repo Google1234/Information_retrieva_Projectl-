@@ -68,8 +68,10 @@ class SPIMI_Invert:
                 dic_file.write(sort[i].encode('utf-8'))
                 dic_file.write('\n')
                 index=self.dic[sort[i]]
+                invert_index_file.write('--'+sort[i].encode('utf-8')+'--\n')
                 for j in range(len(self.block[index])):
                     invert_index_file.write(self.block[index][j])
+                    invert_index_file.write('\n')
             del self.block
             del self.dic
             del sort
@@ -87,7 +89,7 @@ f=open("tutorial/test.txt",'r')
 buff_size=1024*100
 page_part_pointer=0
 last_buff=''
-punct = set(u' 'u''':!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
+punct = set(u''':!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
 ﹔﹕﹖﹗﹚﹜﹞！），．：；？｜｝︴︶︸︺︼︾﹀﹂﹄﹏､～￠
 々‖•·ˇˉ―--′’”([{£¥'"‵〈《「『【〔〖（［｛￡￥〝︵︷︹︻
 ︽︿﹁﹃﹙﹛﹝（｛“‘-—_…''')
@@ -116,7 +118,7 @@ while True:
                         spimi.push_id(page_id)
                         for j in range(len(content_list)):
                             if content_list[j] not in punct  :
-                                #print page_id,content_list[j]
+                                #print content_list[j]
                                 spimi.push_word(content_list[j])
                         del content_list
                     i+=5
