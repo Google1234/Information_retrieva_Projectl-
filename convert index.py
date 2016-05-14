@@ -69,9 +69,14 @@ class SPIMI_Invert:
                 dic_file.write('\n')
                 index=self.dic[sort[i]]
                 invert_index_file.write('--'+sort[i].encode('utf-8')+'--\n')
-                for j in range(len(self.block[index])):
-                    invert_index_file.write(self.block[index][j])
+
+                j1=j2=0
+                while j2<len(self.block[index]):
+                    while j2<len(self.block[index]) and self.block[index][j1]==self.block[index][j2]:
+                        j2+=1
+                    invert_index_file.write(self.block[index][j1]+'#'+str(j2-j1))
                     invert_index_file.write('\n')
+                    j1=j2
             del self.block
             del self.dic
             del sort
@@ -84,50 +89,55 @@ class SPIMI_Invert:
             self.block[self.dic[token]].append(self.doc_id)
 
 
+def inverted_index():
+    f=open("tutorial/test.txt",'r')
+    buff_size=1024*10000
+    page_part_pointer=0
+    last_buff=''
+    punct = set(u''':!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
+    ﹔﹕﹖﹗﹚﹜﹞！），．：；？｜｝︴︶︸︺︼︾﹀﹂﹄﹏､～￠
+    々‖•·ˇˉ―--′’”([{£¥'"‵〈《「『【〔〖（［｛￡￥〝︵︷︹︻
+    ︽︿﹁﹃﹙﹛﹝（｛“‘-—_…''')
+    buff_times=0
+    while True:
+       if buff_times==0:#####解决BOM问题
+           a='\n'+f.read(buff_size)[3:]  #加'\n' 为统一处理：page_id=a[last_i+1:i]
+       else:
+           a=f.read(buff_size)
+       buff_times+=1
+       spimi=SPIMI_Invert("netease_"+str(buff_times))
+       if a=='':
+           break
+       else:
+            a=last_buff+a
+            i=len(last_buff)
+            del last_buff
+            last_i=0
+            while i<len(a):
+                if a[i]=='#':
+                    if a[i:i+5]=='#####':
+                        if page_part_pointer%4==0:#保存 当前网页编号
+                            page_id=a[last_i+1:i] #加1是为了 去除 上一行末尾与这一行之间的 '\n'
+                            #print page_id
+                        if page_part_pointer%4==2:#保存 当前网页内容
+                            page_content=a[last_i:i]
+                            content_list=jieba.lcut_for_search(page_content)
+                            #print content_list
+                            spimi.push_id(page_id)
+                            for j in range(len(content_list)):
+                                if content_list[j] not in punct  :
+                                    #print content_list[j]
+                                    spimi.push_word(content_list[j])
+                            del content_list
+                        i+=5
+                        last_i=i
+                        page_part_pointer+=1
+                    else:
+                        i+=1
+                else:
+                    i+=1
+            last_buff=a[last_i:i]
+            del a
+       spimi.push_word('')
 
-f=open("tutorial/test.txt",'r')
-buff_size=1024*100
-page_part_pointer=0
-last_buff=''
-punct = set(u''':!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
-﹔﹕﹖﹗﹚﹜﹞！），．：；？｜｝︴︶︸︺︼︾﹀﹂﹄﹏､～￠
-々‖•·ˇˉ―--′’”([{£¥'"‵〈《「『【〔〖（［｛￡￥〝︵︷︹︻
-︽︿﹁﹃﹙﹛﹝（｛“‘-—_…''')
-buff_times=0
-while True:
-   a=f.read(buff_size)
-   buff_times+=1
-   spimi=SPIMI_Invert("netease_"+str(buff_times))
-   if a=='':
-       break
-   else:
-        a=last_buff+a
-        i=len(last_buff)
-        del last_buff
-        last_i=0
-        while i<len(a):
-            if a[i]=='#':
-                if a[i:i+5]=='#####':
-                    if page_part_pointer%4==0:#保存 当前网页编号
-                        page_id=a[last_i:i]
-                        #print page_id
-                    if page_part_pointer%4==2:#保存 当前网页内容
-                        page_content=a[last_i:i]
-                        content_list=jieba.lcut_for_search(page_content)
-                        #print content_list
-                        spimi.push_id(page_id)
-                        for j in range(len(content_list)):
-                            if content_list[j] not in punct  :
-                                #print content_list[j]
-                                spimi.push_word(content_list[j])
-                        del content_list
-                    i+=5
-                    last_i=i
-                    page_part_pointer+=1
-            else:
-                i+=1
-        last_buff=a[last_i:i]
-        del a
-   spimi.push_word('')
-
-
+inverted_index()
