@@ -5,6 +5,8 @@
 # See documentation in:
 # http://doc.scrapy.org/en/latest/topics/items.html
 
+
+'''
 import scrapy
 
 
@@ -25,3 +27,4 @@ class toutiaoItem(scrapy.Item):
     content=scrapy.Field() #正文
     link=scrapy.Field()    #链接
     pass
+'''

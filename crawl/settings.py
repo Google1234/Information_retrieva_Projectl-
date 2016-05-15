@@ -9,10 +9,10 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'tutorial'
+BOT_NAME = 'crawl'
 
-SPIDER_MODULES = ['tutorial.spiders']
-NEWSPIDER_MODULE = 'tutorial.spiders'
+SPIDER_MODULES = ['crawl.spiders']
+NEWSPIDER_MODULE = 'crawl.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -61,9 +61,9 @@ NEWSPIDER_MODULE = 'tutorial.spiders'
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-    'tutorial.pipelines.checkPipeline': 300,
-}
+#ITEM_PIPELINES = {
+#    'crawl.pipelines.checkPipeline': 300,
+#}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

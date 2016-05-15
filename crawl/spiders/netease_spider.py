@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-#scrapy crawl netease -o netease.json
+#scrapy crawl netease
 import scrapy
 import re
 
@@ -17,9 +17,9 @@ class neteaseSpider(scrapy.spiders.Spider):
     crawl_number=100000                           #需要爬取网页的数目
     #file_object = open('netease_crawl_path.txt', 'w')          #保存爬取的链接和其父节点，便于分析爬取路径，从而分析质量
     #file_object.close()
-    data_file = open('netease_data.txt', 'w')
+    data_file = open('data/netease_data.txt', 'w')
     data_file.close()
-    dict_file = open('dict.txt', 'w')
+    dict_file = open('data/netease_dict.txt', 'w')
     dict_file.close()
     buff=[]
     buff_link=[]
@@ -60,11 +60,11 @@ class neteaseSpider(scrapy.spiders.Spider):
             self.id+=1
         if self.id%100==0:  #防止内存溢出，若干次写一次文件
             self.lock=True
-            data_file = open('netease_data.txt', 'a')
+            data_file = open('data/netease_data.txt', 'a')
             for i in range(len(self.buff)):
                 data_file.write(self.buff[i])
             data_file.close()
-            dict_file = open('dict.txt', 'a')
+            dict_file = open('data/netease_dict.txt', 'a')
             for i in range(len(self.buff_link)):
                 dict_file.write(self.buff_link[i])
             dict_file.close()
@@ -81,7 +81,3 @@ class neteaseSpider(scrapy.spiders.Spider):
                             self.links_dic[url]=response.url
                             #self.crawl_count+=1
                             yield scrapy.Request(url, callback=self.parse)
-
-
-
-

@@ -5,7 +5,7 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-
+'''
 from scrapy.exceptions import DropItem
 class checkPipeline(object):
     min_length=10
@@ -14,5 +14,4 @@ class checkPipeline(object):
             return item
         else:
             raise DropItem("Missing value" % item)
-
-
+'''

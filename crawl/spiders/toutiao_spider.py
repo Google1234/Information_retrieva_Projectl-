@@ -2,12 +2,12 @@
 #scrapy crawl toutiao -o toutiao_items.json
 #scrapy shell "http://toutiao.com/a6278566838045507841/"
 import scrapy
-from ..items import toutiaoItem
+#from ..items import toutiaoItem
 import re
 
 
 class toutiaoSpider(scrapy.spiders.Spider):
-    name = "toutiao"#网易
+    name = "toutiao"#
     domains = "http://toutiao.com/"
     start_urls = [
         "http://toutiao.com/"
@@ -16,15 +16,15 @@ class toutiaoSpider(scrapy.spiders.Spider):
                                                  #目标网页：父网页
     length=1
     crawl_number=100                            #需要爬取网页的数目
-    file_object = open('toutiao_crawl_path.txt', 'w')          #保存爬取的链接和其父节点，便于分析爬取路径，从而分析质量
+    #file_object = open('data/toutiao_crawl_path.txt', 'w')          #保存爬取的链接和其父节点，便于分析爬取路径，从而分析质量
     has_write=False                                 #为保证在写文件结束后能够正常关闭文件
     def parse(self,response):
-        item =toutiaoItem()
-        item['keywords'] = response.xpath('//meta[@name="keywords"]/@content').extract()
-        item['title']=response.xpath('//div[@class="article-header"]/h1[@class="title"]').extract()
-        item['content']= response.xpath('//div[@class="article-content"]').extract()
-        item['link']=response.url
-        yield item
+        #item =toutiaoItem()
+        #item['keywords'] = response.xpath('//meta[@name="keywords"]/@content').extract()
+        #item['title']=response.xpath('//div[@class="article-header"]/h1[@class="title"]').extract()
+        #item['content']= response.xpath('//div[@class="article-content"]').extract()
+        #item['link']=response.url
+        #yield item
 
         links=response.xpath('//a[@ga_event="click_title_relevant"]/@href').extract() #提取头条具体某页新闻链接
         buff=response.xpath('//a[@ga_event="click_feed_newsimg"]/@href').extract()     #提取头条首页新闻链接

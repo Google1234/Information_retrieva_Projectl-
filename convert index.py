@@ -62,8 +62,8 @@ class SPIMI_Invert:
     def push_word(self,token):
         if token=='':
             sort=merger_sort(self.dic.keys())
-            dic_file=open('dic_'+self.filename+'.txt','w')
-            invert_index_file=open('invert_index_'+self.filename+'.txt','w')
+            dic_file=open('data/dic_'+self.filename+'.txt','w')
+            invert_index_file=open('data/invert_index_'+self.filename+'.txt','w')
             for i in range(len(sort)):
                 dic_file.write(sort[i].encode('utf-8'))
                 dic_file.write('\n')
@@ -89,8 +89,8 @@ class SPIMI_Invert:
             self.block[self.dic[token]].append(self.doc_id)
 
 
-def inverted_index():
-    f=open("tutorial/test.txt",'r')
+def inverted_index(filename):
+    f=open(filename,'r')
     buff_size=1024*10000
     page_part_pointer=0
     last_buff=''
@@ -105,7 +105,7 @@ def inverted_index():
        else:
            a=f.read(buff_size)
        buff_times+=1
-       spimi=SPIMI_Invert("netease_"+str(buff_times))
+       spimi=SPIMI_Invert("test_"+str(buff_times))
        if a=='':
            break
        else:
@@ -140,4 +140,4 @@ def inverted_index():
             del a
        spimi.push_word('')
 
-inverted_index()
+inverted_index("data/test.txt")
