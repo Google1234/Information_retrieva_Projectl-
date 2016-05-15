@@ -62,25 +62,28 @@ class SPIMI_Invert:
     def push_word(self,token):
         if token=='':
             sort=merger_sort(self.dic.keys())
-            dic_file=open('data/dic_'+self.filename+'.txt','w')
+            #dic_file=open('data/dic_'+self.filename+'.txt','w')
             invert_index_file=open('data/invert_index_'+self.filename+'.txt','w')
             for i in range(len(sort)):
-                dic_file.write(sort[i].encode('utf-8'))
-                dic_file.write('\n')
+                #dic_file.write(sort[i].encode('utf-8'))
+                #dic_file.write('\n')
                 index=self.dic[sort[i]]
-                invert_index_file.write('--'+sort[i].encode('utf-8')+'--\n')
+                invert_index_file.write(sort[i].encode('utf-8'))
 
                 j1=j2=0
                 while j2<len(self.block[index]):
                     while j2<len(self.block[index]) and self.block[index][j1]==self.block[index][j2]:
                         j2+=1
-                    invert_index_file.write(self.block[index][j1]+'#'+str(j2-j1))
-                    invert_index_file.write('\n')
+                    invert_index_file.write(':'+self.block[index][j1]+'#'+str(j2-j1))
                     j1=j2
+                invert_index_file.write('\n')
+                '''
+              写入tex数据格式：词项：文档号#次数:文档号#次数\n
+              '''
             del self.block
             del self.dic
             del sort
-            dic_file.close()
+            #dic_file.close()
             invert_index_file.close()
         else:
             if self.dic.has_key(token)==False:
@@ -89,9 +92,13 @@ class SPIMI_Invert:
             self.block[self.dic[token]].append(self.doc_id)
 
 
-def inverted_index(filename):
+def inverted_index(filename,buff_size):
+    '''
+    分词
+    :param filename:
+    :return:
+    '''
     f=open(filename,'r')
-    buff_size=1024*10000
     page_part_pointer=0
     last_buff=''
     punct = set(u''':!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
@@ -100,10 +107,9 @@ def inverted_index(filename):
     ︽︿﹁﹃﹙﹛﹝（｛“‘-—_…''')
     buff_times=0
     while True:
-       if buff_times==0:#####解决BOM问题
-           a='\n'+f.read(buff_size)[3:]  #加'\n' 为统一处理：page_id=a[last_i+1:i]
-       else:
-           a=f.read(buff_size)
+       a=f.read(buff_size)
+       if buff_times==0 and ord(a[0])==0xEF and ord(a[1])==0xBB and ord(a[2])==0xbf : #####解决BOM问题
+           a='\n'+a[3:]  #加'\n' 为统一处理：page_id=a[last_i+1:i]
        buff_times+=1
        spimi=SPIMI_Invert("test_"+str(buff_times))
        if a=='':
@@ -125,7 +131,7 @@ def inverted_index(filename):
                             #print content_list
                             spimi.push_id(page_id)
                             for j in range(len(content_list)):
-                                if content_list[j] not in punct  :
+                                if  content_list[j] not in punct:
                                     #print content_list[j]
                                     spimi.push_word(content_list[j])
                             del content_list
@@ -139,5 +145,8 @@ def inverted_index(filename):
             last_buff=a[last_i:i]
             del a
        spimi.push_word('')
+    '''
+    合并磁盘数据块
+    '''
 
-inverted_index("data/test.txt")
+inverted_index("data/test_data.txt",1024*100)
