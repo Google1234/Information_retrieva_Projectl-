@@ -5,7 +5,96 @@ datapath='data/invert_index_test_'
 buff_path='data/buff_'
 
 
-buff_size=1024*1024
+buff_size=1024*1
+
+
+
+'''
+token:word=None page_id=[] tf=[]
+'''
+class read_block:
+    def __init__(self,buff_size,filename):
+        self.size=buff_size
+        self.filename=open(filename,'r')
+        self.buff=self.filename.read(self.size)
+        self.pointer=0
+        if  ord(self.buff[0])==0xEF and  ord(self.buff[1])==0xBB and ord(self.buff[2])==0xbf : #####解决BOM问题
+            self.last_pointer=3
+        else:
+            self.last_pointer=0
+    def read(self):
+        if self.last_pointer==0:
+            print "Error! :self.size is too small !self.buff is full,can not load new data!"
+        a=self.buff[self.last_pointer:]+self.filename.read(self.last_pointer)
+        del self.buff
+        self.buff=a
+        self.pointer-=self.last_pointer
+        self.last_pointer=0
+
+    def pop_token(self):
+        while True:#word
+            if self.pointer==self.size:
+                self.read()
+            if self.pointer==len(self.buff):
+                return -1 #表示文档读完
+            if self.buff[self.pointer]==':':
+                break
+            self.pointer+=1
+        word=self.buff[self.last_pointer:self.pointer]
+        self.last_pointer=self.pointer+1
+
+        doc_id=[]
+        tf=[]
+        while True:
+            while True:#page
+                if self.pointer==self.size:
+                    self.read()
+                if self.buff[self.pointer]=='#':
+                    break
+                self.pointer+=1
+            doc_id.append(self.buff[self.last_pointer:self.pointer])
+            self.last_pointer=self.pointer+1
+            while True:#tf
+                if self.pointer==self.size:
+                    self.read()
+                if self.buff[self.pointer]=='\n':#要求最后一项纪录必须以\n结尾
+                    tf.append(self.buff[self.last_pointer:self.pointer])
+                    self.last_pointer=self.pointer+1
+                    return word,doc_id,tf
+                if self.buff[self.pointer]==':':
+                    break
+                self.pointer+=1
+            tf.append(self.buff[self.last_pointer:self.pointer])
+            self.last_pointer=self.pointer+1
+class write_block:
+    def __init__(self,buff_size,filename):
+        self.remain=self.size=buff_size
+        self.filename=filename
+        file=open(self.filename,'w')
+        file.close()
+        self.buff=''
+    def push(self,content):
+        if len(content)>self.remain:
+            self.buff+=content[:self.remain+1]
+            file=open(self.filename,'a')
+            file.write(self.buff)
+            file.close()
+            del self.buff
+            self.buff=''
+            self.buff+=content[self.remain+1:]
+            self.remain=self.size -(len(content)-self.remain)
+        else:
+            self.buff+=content
+            self.remain-=len(content)
+    def close(self):
+        file=open(self.filename,'a')
+        file.write(self.buff)
+        file.close()
+        del self.buff
+        self.buff=''
+        self.remain=self.size
+
+'''
 def sort_fie(id_list):
     if len(id_list)<=1:
         return id_list[0]
@@ -14,30 +103,19 @@ def sort_fie(id_list):
         right=id_list[len(id_list)/2:]
         id1=sort_fie(left)
         id2=sort_fie(right)
+
         file1=open(datapath+str(id1)+'.txt','r')
         file2=open(datapath+str(id2)+'.txt','r')
         output_data=open(buff_path+str(id1)+str(id2)+'.txt','w')
-        a1=file1.read(buff_size)
-        a2=file2.read(buff_size)
+
+
         output_buff=[]
         output_pointer=0
-        last_pointer1=0
-        last_pointer2=0
-        pointer1=0
-        pointer2=0
-
-        while True:
-            pointer1+=1
-            if a1[pointer1]==':':
-                break
-        dic_id1=a1[last_pointer1:pointer1]
 
 
-        while True:
-            pointer2+=1
-            if a2[pointer2]==':':
-                break
-        dic_id2=a2[last_pointer2:pointer2]
+
+
+
 
         Flag1=Flag2=False
         while Flag1==False and Flag2==False:
@@ -59,14 +137,7 @@ def sort_fie(id_list):
                 output_pointer+=len(dic_id2)+1+(pointer2-last_pointer2)+1
                 last_pointer2=pointer2+1
 
-                while True:
-                    pointer2+=1
-                    if a2[pointer2]=='':
-                        Flag2=True
-                        break
-                    if a2[pointer2]==':':
-                        break
-                dic_id2=a2[last_pointer2:pointer2]
+
 
             if dic_id2>dic_id1:
                 while True:
@@ -286,5 +357,7 @@ def sort_fie(id_list):
         file2.close()
         buff.close()
 
-sort_fie([1,2])
+#sort_fie([1,2])
+
+'''
 
