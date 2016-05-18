@@ -1,6 +1,5 @@
 #-*- coding: UTF-8 -*-
 import os
-
 '''
 token:word=None page_id=[] tf=[]
 '''
@@ -67,7 +66,6 @@ class read_block:
     def close(self):
         self.filename.close()
         del self.pointer,self.last_pointer,self.size,self.buff
-
 class write_block:
     def __init__(self,buff_size,filename):
         self.remain=self.size=buff_size
@@ -95,16 +93,14 @@ class write_block:
         del self.buff
         self.buff=''
         self.remain=self.size
-
-
-def sort_fie(name_list,buff_size,datapath):
+def merge_file(name_list,buff_size,datapath):
     if len(name_list)<=1:
         return name_list[0]
     else :
         left=name_list[:len(name_list)/2]
         right=name_list[len(name_list)/2:]
-        left_file=sort_fie(left,buff_size,datapath)
-        right_file=sort_fie(right,buff_size,datapath)
+        left_file=merge_fie(left,buff_size,datapath)
+        right_file=merge_fie(right,buff_size,datapath)
         '''
         merge 部分：
        '''
@@ -136,7 +132,7 @@ def sort_fie(name_list,buff_size,datapath):
                 write_block1.push(word2)
                 i=j=0
                 while i<len(doc1) and  j<len(doc2):
-                    print word1,doc1[i],doc2[j]
+                    #print word1,doc1[i],doc2[j]
                     if int(doc1[i])<int(doc2[j]):
                         write_block1.push(':'+doc1[i]+'#'+tf1[i])
                         i+=1
@@ -194,7 +190,3 @@ def sort_fie(name_list,buff_size,datapath):
         read_block2.close()
         del write_block1,read_block1,read_block2
         return left_file+'+'+right_file
-
-datapath='data/invert_index_test_'
-buff_size=1024*1024
-sort_fie([str(i) for i in range(1,3)],buff_size,datapath)

@@ -1,5 +1,6 @@
 #-*- coding: UTF-8 -*-
 import jieba
+import merge_inverted_files
 def merger_sort(seq):
     if len(seq)<=1:
         return seq
@@ -185,6 +186,13 @@ def inverted_index(filename,read_buff_size,output_file_record_size):
     '''
     合并倒排索引文件
     '''
+    merge_inverted_files.merge_fie([i for i in range(1,file_numbers)],buff_size,filename[:-4])
+    '''
+    由倒排索引文件构建 词-倒排索引位置
+    '''
 
-buff_size=1024*1024*10
-inverted_index("data/netease_data.txt",buff_size,5000)
+
+buff_size=1024*1024*1
+#inverted_index("data/netease_data.txt",buff_size,5000)
+datapath='data/netease_data'
+merge_inverted_files.merge_file([str(i) for i in range(1,8)],buff_size,datapath)
