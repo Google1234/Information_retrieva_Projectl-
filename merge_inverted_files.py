@@ -136,6 +136,7 @@ def sort_fie(name_list,buff_size,datapath):
                 write_block1.push(word2)
                 i=j=0
                 while i<len(doc1) and  j<len(doc2):
+                    print word1,doc1[i],doc2[j]
                     if int(doc1[i])<int(doc2[j]):
                         write_block1.push(':'+doc1[i]+'#'+tf1[i])
                         i+=1
@@ -175,8 +176,7 @@ def sort_fie(name_list,buff_size,datapath):
                     break
                 write_block1.push(block)
                 del block
-
-        else:
+        else :
             if word2=='':
                 write_block1.push(word1)
                 for i in range(len(doc1)):
@@ -196,5 +196,5 @@ def sort_fie(name_list,buff_size,datapath):
         return left_file+'+'+right_file
 
 datapath='data/invert_index_test_'
-buff_size=1024*1
-sort_fie(['1','2','3','4','5','6'],buff_size,datapath)
+buff_size=1024*1024
+sort_fie([str(i) for i in range(1,3)],buff_size,datapath)
