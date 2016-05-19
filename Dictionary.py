@@ -172,7 +172,7 @@ class dictionary:
                 pointer+=1
             offset=buff[last_pointer:pointer]
             last_pointer=pointer+1
-            self.dic[word]=[idf,int(begin_pointer),int(offset)]
+            self.dic[word]=[int(idf),int(begin_pointer),int(offset)]
             del word,idf,begin_pointer,offset
         file.close()
         self.cache_size=cache_size
@@ -180,7 +180,7 @@ class dictionary:
         #第一次加载倒排记录表
         self.cache=self.index_file.read(self.cache_size)
         self.cache_pointer=0
-    def get_idfANDlocation(self,word):#idf,location
+    def get_idfANDlocation(self,word):#idf,begin_location,length
         if self.dic.has_key(word):
             return self.dic[word][0],self.dic[word][1],self.dic[word][2]
         else:
@@ -190,7 +190,7 @@ class dictionary:
         '''
         从倒排记录表中返回词项的倒排记录
         :param word: 词项
-        :return: 词项倒排记录
+        :return: idf 词项倒排记录   ;倒排记录表包括doc_id 和df ====>>输出已经转换成 整形
         '''
         idf,begin_location,offset=self.get_idfANDlocation(word)
         if begin_location>=self.cache_pointer and begin_location+offset<=self.cache_pointer+self.cache_size:
@@ -220,16 +220,15 @@ class dictionary:
             last_pointer=pointer+1
             while True:#tf
                 if self.cache[pointer]=='\n':
-                    tf.append(self.cache[last_pointer:pointer])
-                    last_pointer=pointer+1
                     Flag=False
+                    break
                 if self.cache[pointer]==':':
                     break
                 pointer+=1
             tf.append(self.cache[last_pointer:pointer])
             last_pointer=pointer+1
         del begin_location,offset,pointer,last_pointer,Flag
-        return idf,doc_id,tf
+        return idf,[int(doc_id[i]) for i in range(len(doc_id))],[int(tf[j]) for j in range(len(tf))]
     def close(self):
         del self.cache,self.cache_size,self.cache_pointer
         self.index_file.close()
