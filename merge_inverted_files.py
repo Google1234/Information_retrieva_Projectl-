@@ -99,8 +99,8 @@ def merge_file(name_list,buff_size,datapath):
     else :
         left=name_list[:len(name_list)/2]
         right=name_list[len(name_list)/2:]
-        left_file=merge_fie(left,buff_size,datapath)
-        right_file=merge_fie(right,buff_size,datapath)
+        left_file=merge_file(left,buff_size,datapath)
+        right_file=merge_file(right,buff_size,datapath)
         '''
         merge 部分：
        '''
