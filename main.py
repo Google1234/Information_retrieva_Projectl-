@@ -1,10 +1,15 @@
 #-*- coding: UTF-8 -*-
-#测试
-index_file=open("data/netease_data_inverted_index.txt",'r')
-print index_file.read()[2597:2597+7]
+import inverted_files
+import Dictionary
+import News_Recommend
 
-index_file.seek(0,0)
-index_file.seek(2597)
-print index_file.tell()
-print index_file.readline()
-print index_file.tell()
+buff_size=1024*1024
+output_record_size=40
+filename="data/netease_data.txt"
+inverted_files.make_inverted_index(filename,buff_size,output_record_size)
+
+
+#加载存储的词典
+cache_size=1024*1024
+div=Dictionary.dictionary(filename[:-4]+"_index_Dictionary.txt",filename[:-4]+'_inverted_index.txt',cache_size)
+print div.get_idfANDinvertedindex("概率")
