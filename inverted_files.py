@@ -1,4 +1,6 @@
 #-*- coding: UTF-8 -*-
+import os
+import shutil
 import jieba
 import merge_inverted_files
 import Dictionary
@@ -32,9 +34,6 @@ def merger(list1,list2):
         index2+=1
     return array
 class read_block:
-    '''
-    doc_id#####title#####content#####url#####
-    '''
     def __init__(self,buff_size,filename):
         self.size=buff_size
         self.filename=open(filename,'r')
@@ -54,6 +53,10 @@ class read_block:
         self.last_pointer=0
 
     def pop_token(self):
+        '''
+        文档格式：  doc_id#####title#####content#####url#####doc_id....
+        :return:
+        '''
         while True:#doc_id
             if self.pointer==self.size:
                 self.read()
@@ -87,11 +90,11 @@ class read_block:
         while True:#url
             if self.pointer==self.size:
                 self.read()
-            if self.buff[self.pointer:self.pointer+6]=='#####'+'\n':
+            if self.buff[self.pointer:self.pointer+5]=='#####':
                 break
             self.pointer+=1
-        #title=(self.buff[self.last_pointer:self.pointer])
-        self.pointer+=5
+        #url=(self.buff[self.last_pointer:self.pointer])
+        self.pointer+=4
         self.last_pointer=self.pointer+1
         return doc_id,content
 
@@ -125,6 +128,11 @@ class SPIMI_Invert:
     def push_id(self,id):
         self.doc_id=id
     def push_word(self,token):
+        '''
+        写入tex数据格式：词项：文档号#次数:文档号#次数|
+        :param token:
+        :return:
+        '''
         if token=='':
             sort=merger_sort(self.dic.keys())
             invert_index_file=open(self.filename,'w')
@@ -137,10 +145,7 @@ class SPIMI_Invert:
                         j2+=1
                     invert_index_file.write(':'+self.block[index][j1]+'#'+str(j2-j1))
                     j1=j2
-                invert_index_file.write('\n')
-                '''
-              写入tex数据格式：词项：文档号#次数:文档号#次数\n
-              '''
+                invert_index_file.write('|')
             del self.block
             del self.dic
             del sort
@@ -150,24 +155,30 @@ class SPIMI_Invert:
                 self.dic[token]=len(self.block)
                 self.block.append([])
             self.block[self.dic[token]].append(self.doc_id)
-def inverted_index(filename,read_buff_size,output_file_record_size):
+def make_inverted_index(filename,read_buff_size,output_file_record_size,web_record_numbers=100000):
     '''
     :param filename: 网页数据，包含后缀.txt
     :param read_buff_size:按块读文件，每个块的大小
     :param output_file_token_size:输出每个文件中包含的新闻纪录数
+    :param 输入文件网页记录总数，用于显示程序处理进度 ，无其他用处
     :return:倒排索引文件
     '''
-    '''
-    读文件，分词，存储倒排索引至多个文件
-    '''
+    #读文件，分词，存储倒排索引至多个文件
     block_read=read_block(read_buff_size,filename)
-    punct = set(u''':!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
+    punct = set(u'''/+%#:!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
     ﹔﹕﹖﹗﹚﹜﹞！），．：；？｜｝︴︶︸︺︼︾﹀﹂﹄﹏､～￠
     々‖•·ˇˉ―--′’”([{£¥'"‵〈《「『【〔〖（［｛￡￥〝︵︷︹︻
     ︽︿﹁﹃﹙﹛﹝（｛“‘-—_…''')
+    Letters_and_numbers=set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+    buff_dir=filename[:-4]+'_buff' #创建问价夹，用于存放 构建倒排索引过程中的中间文件，构建完成后删除文件夹
+    if os.path.exists(buff_dir):
+        pass
+    else:
+        os.mkdir(buff_dir)
     file_numbers=1
     while True:
-        spimi=SPIMI_Invert(filename[:-4]+str(file_numbers)+'.txt')
+        print "process :cuting word +making inverted_index files---->>>>",file_numbers*(output_file_record_size)*1.0/web_record_numbers
+        spimi=SPIMI_Invert(buff_dir+'/'+str(file_numbers)+'.txt')
         count=0
         while True:
             doc_id,content=block_read.pop_token()
@@ -176,35 +187,23 @@ def inverted_index(filename,read_buff_size,output_file_record_size):
             content_list=jieba.lcut_for_search(content)
             spimi.push_id(doc_id)
             for j in range(len(content_list)):
-                if  content_list[j] not in punct:
+                if  content_list[j] not in punct and content_list[j] not in Letters_and_numbers :
                     spimi.push_word(content_list[j])
             del content_list,doc_id,content
             count+=1
         spimi.push_word('')#为空 表示写文件
+        file_numbers+=1
         if content=='':
             break
-        file_numbers+=1
-    '''
-    合并倒排索引文件
-    '''
-    merged_filename=merge_inverted_files.merge_file([str(i) for i in range(1,file_numbers)],buff_size,filename[:-4])
-    '''
-    由倒排索引文件构建 词-倒排索引位置
-    '''
-    Dictionary.establish_ditionary(filename[:-4]+merged_filename+'.txt',buff_size,filename[:-4]+"Dictionary.txt")
-    '''
-    加载存储的词典
-    '''
-    Dictionary.dictionary(filename[:-4]+"Dictionary.txt",filename[:-4]+merged_filename+'.txt',1024*1024)
+    print ("process :cuting word +making inverted_index files---->>>>Finish")
+    #合并倒排索引文件
+    merged_filename=merge_inverted_files.merge_file([str(i) for i in range(1,file_numbers)],read_buff_size,buff_dir+'/')
+    print "process:mergeing inverted index files----->Finish"
+    #由倒排索引文件构建 词-倒排索引位置
+    Dictionary.establish_ditionary(buff_dir+'/'+merged_filename+'.txt',read_buff_size,buff_dir+'/'+"Dictionary.txt")
+    shutil.copy(buff_dir+'/'+merged_filename+'.txt',filename[:-4]+'_inverted_index.txt')#移动文件
+    shutil.copy(buff_dir+'/'+"Dictionary.txt",filename[:-4]+'_index_Dictionary.txt')
+    shutil.rmtree(buff_dir)#删除文件夹
+    del merged_filename,buff_dir,punct,Letters_and_numbers
 
 
-'''
-buff_size=1024*1024*10
-output_record_size=10000
-filename="data/netease_data.txt"
-inverted_index("data/netease_data.txt",buff_size,output_record_size)
-merged_filename=merged_filename=merge_inverted_files.merge_file(['1+2+3','4'],buff_size,filename[:-4])
-Dictionary.establish_ditionary(filename[:-4]+"1+2+3+4"+'.txt',buff_size,filename[:-4]+"Dictionary.txt")
-div=Dictionary.dictionary(filename[:-4]+"Dictionary.txt",filename[:-4]+"1+2+3+4"+'.txt',1024*1024)
-print div.get_idfANDinvertedindex("中国")
-'''
