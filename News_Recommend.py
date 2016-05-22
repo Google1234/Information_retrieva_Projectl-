@@ -40,7 +40,7 @@ class queue:
         return self.queue[1]
     def extract_max(self):#O(lgn) #返回并去掉最大值
         if self.queue_size<1:
-            print('error:extract_max ,there is no element in quene')
+            print('error:extract_max ,there is no more element in quene')
             return -1,-1,-1
         else:
             buff=self.queue[1]
@@ -90,13 +90,14 @@ def CosineScore(query_token_list,Topk_numbers=10):
     :param query_token_list:
     :return:
     '''
-    dictionary=Dictionary.dictionary("data/netease_dataDictionary.txt","data/netease_data_inverted_index.txt",1024*1024*10)
+    dictionary=Dictionary.dictionary("data/netease_dataDictionary2.txt","data/netease_data_inverted_index.txt",1024*1024*10)
     doc={} #key:doc_id value:position
     scores=[] #[score,doc_id,tf]
+    N=30000.0#文档数
     for i in range(len(query_token_list)):
         term=query_token_list[i]
         df,doc_id,tf=dictionary.get_idfANDinvertedindex(term)
-        w_query=math.log10(df)
+        w_query=math.log10(N/df)
         for j in range(len(doc_id)):
             w_d=1+math.log10(tf[j])
             if doc.has_key(doc_id[j]):
@@ -108,8 +109,8 @@ def CosineScore(query_token_list,Topk_numbers=10):
                 position=len(scores)
                 doc[doc_id[j]]=position
                 scores.append([w_d*w_query,doc_id[j],w_d**2])
-    for k in range(len(scores)):
-        scores[k][0]=scores[k][0]/(scores[k][2]**0.5)
+    #for k in range(len(scores)):
+        #scores[k][0]=scores[k][0]/(scores[k][2]**0.5)
 
     max_quene=queue(scores)
     max_quene.build_quene2()
@@ -123,7 +124,7 @@ def CosineScore(query_token_list,Topk_numbers=10):
         topK.append(id)
     return topK
 
-def FastCosineScore(query_token_list):
+def FastCosineScore(query_token_list,TopK_numbers=10,cache_size=1024*1024):
     '''
     如何加速：
     思路一：加快每个余弦相似度的计算
@@ -132,8 +133,6 @@ def FastCosineScore(query_token_list):
     :param query_token_list:
     :return:
     '''
-    return
-
-
-
-print CosineScore(["杨丹"])
+    dictionary=Dictionary.dictionary("data/netease_dataDictionary.txt","data/netease_data_inverted_index.txt",cache_size)
+    doc={} #key:doc_id value:position
+    scores=[] #[score,doc_id,tf]
