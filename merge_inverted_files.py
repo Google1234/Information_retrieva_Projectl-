@@ -48,7 +48,7 @@ class read_block:
             while True:#tf
                 if self.pointer==self.size:
                     self.read()
-                if self.buff[self.pointer]=='\n':#要求最后一项纪录必须以\n结尾
+                if self.buff[self.pointer]=='|':
                     tf.append(self.buff[self.last_pointer:self.pointer])
                     self.last_pointer=self.pointer+1
                     return word,doc_id,tf
@@ -101,9 +101,8 @@ def merge_file(name_list,buff_size,datapath):
         right=name_list[len(name_list)/2:]
         left_file=merge_file(left,buff_size,datapath)
         right_file=merge_file(right,buff_size,datapath)
-        '''
-        merge 部分：
-       '''
+        #merge 部分：
+        print "process:mergeing inverted index files----->",left_file,',',right_file
         read_block1=read_block(buff_size,datapath+left_file+'.txt')
         read_block2=read_block(buff_size,datapath+right_file+'.txt')
         write_block1=write_block(buff_size,datapath+left_file+'+'+right_file+'.txt')
@@ -114,7 +113,7 @@ def merge_file(name_list,buff_size,datapath):
                 write_block1.push(word2)
                 for i in range(len(doc2)):
                     write_block1.push(':'+doc2[i]+'#'+tf2[i])
-                write_block1.push('\n')
+                write_block1.push('|')
                 del word2,doc2,tf2
                 word2,doc2,tf2=read_block2.pop_token()
                 if word2=='':
@@ -123,7 +122,7 @@ def merge_file(name_list,buff_size,datapath):
                 write_block1.push(word1)
                 for i in range(len(doc1)):
                     write_block1.push(':'+doc1[i]+'#'+tf1[i])
-                write_block1.push('\n')
+                write_block1.push('|')
                 del word1,doc1,tf1
                 word1,doc1,tf1=read_block1.pop_token()
                 if word1=='':
@@ -152,7 +151,7 @@ def merge_file(name_list,buff_size,datapath):
                     while i<len(doc1):
                         write_block1.push(':'+doc1[i]+'#'+tf1[i])
                         i+=1
-                write_block1.push('\n')
+                write_block1.push('|')
                 del word1,doc1,tf1,word2,doc2,tf2
                 word1,doc1,tf1=read_block1.pop_token()
                 word2,doc2,tf2=read_block2.pop_token()
@@ -164,7 +163,7 @@ def merge_file(name_list,buff_size,datapath):
             write_block1.push(word2)
             for i in range(len(doc2)):
                 write_block1.push(':'+doc2[i]+'#'+tf2[i])
-            write_block1.push('\n')
+            write_block1.push('|')
             del word2,doc2,tf2
             while True:
                 block=read_block2.pop_rest()
@@ -177,7 +176,7 @@ def merge_file(name_list,buff_size,datapath):
                 write_block1.push(word1)
                 for i in range(len(doc1)):
                     write_block1.push(':'+doc1[i]+'#'+tf1[i])
-                write_block1.push('\n')
+                write_block1.push('|')
                 del word1,doc1,tf1
                 while True:
                     block=read_block1.pop_rest()

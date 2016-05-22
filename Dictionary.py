@@ -28,7 +28,7 @@ class read_block:
         :return: word   词项
                   idf    词项idf  数值型
                   offset 词项对应的第一个doc_id 存储的位置与上一个词项              数值型
-                  length         词项doc_id tf 所占的字节数,不包括末尾的\n     数值型
+                  length         词项doc_id tf 所占的字节数,不包括末尾的'|'    数值型
         '''
         while True:#word
             if self.pointer==self.size:
@@ -57,7 +57,7 @@ class read_block:
             while True:#tf
                 if self.pointer==self.size:
                     self.read()
-                if self.buff[self.pointer]=='\n':#要求最后一项纪录必须以\n结尾
+                if self.buff[self.pointer]=='|':
                     #tf.append(self.buff[self.last_pointer:self.pointer])
                     self.last_pointer=self.pointer+1
                     return word,idf,self.token_pointer+self.base_pointer,self.pointer-self.token_pointer
@@ -107,23 +107,24 @@ def establish_ditionary(input_file,buff_size,output_file):
     '''
     :param input_file: 倒排索引文件
     :param buff_size: 读写文件块的大小
-    :param output_file: 词项：idf：词项在倒排记录表中位置指针:词项倒排索引所占的字节数\n
+    :param output_file: 词项：idf：词项在倒排记录表中位置指针:词项倒排索引所占的字节数|
                                     注：起始位置为词项对应的以一个doc_id位置                                            绝对地址
-                                        所占字节数 从第一个doc_id存储位置至 最后一个tf存储位置止，而不是最后的'\n'      绝对地址
+                                        所占字节数 从第一个doc_id存储位置至 最后一个tf存储位置止，而不是最后的'|'      绝对地址
     :return:
     '''
+    print "process:establish index dictionnary----->Begin"
     block_read=read_block(buff_size,input_file)
     block_write=write_block(buff_size,output_file)
     while True:
         word,idf,begin_pointer,offset=block_read.pop_token()
         if word=='':
             break
-        block_write.push(word+':'+str(idf)+':'+str(begin_pointer)+':'+str(offset)+'\n')
+        block_write.push(word+':'+str(idf)+':'+str(begin_pointer)+':'+str(offset)+'|')
     block_read.close()
     block_write.close()
     del block_read
     del block_write
-    print "finish dictionnary establish "
+    print "process:establish index dictionnary----->Finish"
 class dictionary:
     dic={}
     def __init__(self,Dic_filename,inverted_index_filename,cache_size):
@@ -167,7 +168,7 @@ class dictionary:
             #offset_pointer
             pointer+=1
             while True:
-                if buff[pointer]=='\n':
+                if buff[pointer]=='|':
                     break
                 pointer+=1
             offset=buff[last_pointer:pointer]
@@ -219,7 +220,7 @@ class dictionary:
             doc_id.append(self.cache[last_pointer:pointer])
             last_pointer=pointer+1
             while True:#tf
-                if self.cache[pointer]=='\n':
+                if self.cache[pointer]=='|':
                     Flag=False
                     break
                 if self.cache[pointer]==':':
