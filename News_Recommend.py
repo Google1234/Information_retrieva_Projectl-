@@ -9,10 +9,9 @@ class queue:
     '''
     用最大堆实现的优先队列
     '''
-    queue=[]
-    queue_size=0
     def __init__(self,a):
-        self.queue.append([65536,''])
+        self.queue=[]
+        self.queue.append([65536,'',''])
         self.queue.extend(a)
         self.queue_size=len(a)
     def output(self):
@@ -40,7 +39,7 @@ class queue:
         return self.queue[1]
     def extract_max(self):#O(lgn) #返回并去掉最大值
         if self.queue_size<1:
-            print('error:extract_max ,there is no more element in quene')
+            print('Warning:extract_max ,there is no more element in quene')
             return -1,-1,-1
         else:
             buff=self.queue[1]
@@ -83,48 +82,56 @@ class queue:
         while index>0:
             self.max_quene(index)
             index-=1
-def CosineScore(query_token_list,Topk_numbers=10):
-    '''
-    查询词项：w=log(N/df)
-    文档词项：w=(1+logtf)
-    :param query_token_list:
-    :return:
-    '''
-    dictionary=Dictionary.dictionary("data/netease_dataDictionary2.txt","data/netease_data_inverted_index.txt",1024*1024*10)
-    doc={} #key:doc_id value:position
-    scores=[] #[score,doc_id,tf]
-    N=30000.0#文档数
-    for i in range(len(query_token_list)):
-        term=query_token_list[i]
-        df,doc_id,tf=dictionary.get_idfANDinvertedindex(term)
-        w_query=math.log10(N/df)
-        for j in range(len(doc_id)):
-            w_d=1+math.log10(tf[j])
-            if doc.has_key(doc_id[j]):
-                position=doc[doc_id[j]]
-                scores[position][0]+=w_d*w_query
-                scores[position][1]=doc_id[j]
-                scores[position][2]+=(w_d**2)
+
+
+class CosineScore:
+    def __init__(self,dic_filename,inverted_index_filename,cache_size,doc_total_numbers=100000):
+        self.dictionary=Dictionary.dictionary(dic_filename,inverted_index_filename,cache_size)
+        self.N=doc_total_numbers
+    def calculate(self,query_token_list,Top_numbers=10):
+        '''
+        查询词项：w=log(N/df)
+        文档词项：w=(1+logtf)
+        :param query_token_list:
+        :return:
+        '''
+        doc={} #key:doc_id value:position
+        scores=[] #[score,doc_id,tf]
+        for i in range(len(query_token_list)):
+            term=query_token_list[i]
+            df,doc_id,tf=self.dictionary.get_idfANDinvertedindex(term)
+            if df==0:
+                pass
             else:
-                position=len(scores)
-                doc[doc_id[j]]=position
-                scores.append([w_d*w_query,doc_id[j],w_d**2])
-    #for k in range(len(scores)):
+                w_query=math.log10(self.N/df)
+                for j in range(len(doc_id)):
+                    w_d=1+math.log10(tf[j])
+                    if doc.has_key(doc_id[j]):
+                        position=doc[doc_id[j]]
+                        scores[position][0]+=w_d*w_query
+                        scores[position][1]=doc_id[j]
+                        scores[position][2]+=(w_d**2)
+                    else:
+                        position=len(scores)
+                        doc[doc_id[j]]=position
+                        scores.append([w_d*w_query,doc_id[j],w_d**2])
+    #for k in range(len(scores)):#没有进行 归一化处理
         #scores[k][0]=scores[k][0]/(scores[k][2]**0.5)
 
-    max_quene=queue(scores)
-    max_quene.build_quene2()
-    topK=[]
-    i=0
-    while True:
-        id=max_quene.extract_max()[1]
-        if id==-1 or i==Topk_numbers:
-            break
-        i+=1
-        topK.append(id)
-    return topK
+        max_quene=queue(scores)
+        max_quene.build_quene2()
+        topK=[]
+        i=0
+        while True:
+            id=max_quene.extract_max()[1]
+            if id==-1 or i==Top_numbers:
+                break
+            i+=1
+            topK.append(id)
+        del doc,scores,term,df,doc_id,tf,w_query,position,max_quene
+        return topK
 
-def FastCosineScore(query_token_list,TopK_numbers=10,cache_size=1024*1024):
+class FastCosineScore:
     '''
     如何加速：
     思路一：加快每个余弦相似度的计算
@@ -132,7 +139,65 @@ def FastCosineScore(query_token_list,TopK_numbers=10,cache_size=1024*1024):
     思路三：能否不需要计算所有Ｎ篇文档的得分？
     :param query_token_list:
     :return:
+    方法一：索引去除(Index elimination)：一般检索方法中，通常只考虑至少包含一个查询词项的文档。可以进一步拓展这种思路，
+                        只考虑那些包含高idf查询词项的文档，
+                        只考虑那些包含多个查询词项的文档(比如达到一定比例，3个词项至少出现2个，4个中至少出现3个等等)
+    方法二：胜者表(Champion list)：对每个词项t，预先计算出其倒排记录表中权重最高的r篇文档，如果采用tfidf机制，即tf最高的r篇，这r篇文档称为t的胜者表
+                                    也称为优胜表(fancy list)或高分文档(top docs)
+                                    注意：r 比如在索引建立时就已经设定
+                                    因此，有可能 r < K
+                                    检索时，仅计算某些词项的胜者表中包含的文档集合的并集
+                                    从这个集合中选出top K作为最终的top K
     '''
-    dictionary=Dictionary.dictionary("data/netease_dataDictionary.txt","data/netease_data_inverted_index.txt",cache_size)
-    doc={} #key:doc_id value:position
-    scores=[] #[score,doc_id,tf]
+    def __init__(self,dic_filename,inverted_index_filename,cache_size,doc_total_numbers=100000):
+        self.dictionary=Dictionary.dictionary(dic_filename,inverted_index_filename,cache_size)
+        self.N=doc_total_numbers
+    def calculate(self,query_token_list,Top_numbers=10,multiple=10):
+        '''
+        查询词项：w=log(N/df)
+        文档词项：w=(1+logtf)
+        :param query_token_list: [word1,word2]
+        :parame Top_numbers       返回的记录数
+        ：param  multiple          从Top_numbers*multiple中找Top
+        :return:
+        '''
+        doc={} #key:doc_id value:position
+        scores=[] #[score,doc_id,tf]
+
+        invert_index=[]
+        for i in range(len(query_token_list)):
+            df,doc_id,tf=self.dictionary.get_idfANDinvertedindex(query_token_list[i]) #
+            if df==0:
+                pass
+            else:
+                invert_index.append([df,doc_id,tf])
+        max_quene=queue(invert_index)
+        max_quene.build_quene2()#按照df排序
+        while True:
+            max=max_quene.extract_max()
+            if max[0]==-1 or len(scores)>Top_numbers*multiple:
+                break
+            w_query=math.log10(self.N/max[0])
+            for j in range(len(max[1])):
+                w_d=1+math.log10(max[2][j])
+                if doc.has_key(max[1][j]):
+                    position=doc[max[1][j]]
+                    scores[position][0]+=w_d*w_query
+                    scores[position][1]=max[1][j]
+                    scores[position][2]+=(w_d**2)
+                else:
+                    position=len(scores)
+                    doc[max[1][j]]=position
+                    scores.append([w_d*w_query,max[1][j],w_d**2])
+        #for k in range(len(scores)):
+            #scores[k][0]=scores[k][0]/(scores[k][2]**0.5)
+        top=queue(scores)
+        top.build_quene2()
+        topK=[]
+        while True:
+            id=top.extract_max()[1]
+            if id==-1 or len(topK)>Top_numbers:
+                break
+            topK.append(id)
+        del doc,scores,w_query,position
+        return topK

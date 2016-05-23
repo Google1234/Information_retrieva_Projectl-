@@ -185,8 +185,8 @@ class dictionary:
         if self.dic.has_key(word):
             return self.dic[word][0],self.dic[word][1],self.dic[word][2]
         else:
-            print "Error:word not exist!"
-            return 0
+            print "Warning:word not exist! Ignore",word
+            return 0,0,0
     def get_idfANDinvertedindex(self,word):
         '''
         从倒排记录表中返回词项的倒排记录
@@ -194,6 +194,8 @@ class dictionary:
         :return: idf 词项倒排记录   ;倒排记录表包括doc_id 和df ====>>输出已经转换成 整形
         '''
         idf,begin_location,offset=self.get_idfANDlocation(word)
+        if idf==0:
+            return 0,[0],[0]
         if begin_location>=self.cache_pointer and begin_location+offset<=self.cache_pointer+self.cache_size:
             #从内存中找
             pass
