@@ -4,6 +4,7 @@ import Dictionary
 import News_Recommend
 import jieba
 import similar_doc
+import config
 
 #part :爬取数据 并保存
 #需要先cd 至 Information_retrleva_Project
@@ -53,11 +54,10 @@ for i in topk:
 '''
 
 #part :保存相似的文档至文件
-'''
-path="data/netease_"
-buff_size=1024*1024*10
-s=similar_doc.similar(path+"index.txt",path+"data.txt",path+"data_index_Dictionary.txt",path+"data_inverted_index.txt",buff_size)
-s.write_to_file(100000,path+"similar.txt",buff_size)
-'''
+
+path="data/netease"
+s=similar_doc.similar(path+config.index_filename,path+config.data_filename,path+config.inverted_Dictionary_filename,path+config.inverted_index_filename,config.buff_size)
+s.write_to_file(config.crawled_web_numbers,path+config.similar_filename)
+
 
 

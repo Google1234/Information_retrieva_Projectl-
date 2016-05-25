@@ -15,7 +15,7 @@ $if news:
 			<div class="col-lg-6 col-lg-offset-1">
 				<div class="panel panel-info">
    					<div class="panel-heading">
-					$news['time']    $news['title']
+					    $news['title']
    					</div>
 	   				<div class="panel-body">
 						 $news['content']
@@ -24,14 +24,14 @@ $if news:
 	   				</div>
 				</div>
 			</div>
-			<div class="col-lg-2 col-lg-offset-1">
+			<div class="col-lg-3 col-lg-offset-1">
 				<div class= "panel panel-primary">
 					<div class="panel-heading">相关新闻</div>
 					<div class= "panel-body">
 					<ul>
-						<li>AAAA</li>
-						<li>BBBB</li>
-						<li>CCCC</li>
+						<li><a href=$news['recommand'][0][2]>$news['recommand'][0][0][:20]</a></li>
+						<li><a href=$news['recommand'][1][2]>$news['recommand'][1][0][:20]</a></li>
+						<li><a href=$news['recommand'][2][2]>$news['recommand'][2][0][:20]</a></li>
 					</ul>
 					</div>
 				</div>

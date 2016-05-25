@@ -1,6 +1,10 @@
 #-*- coding: UTF-8 -*-
 import jieba
+import config
 import News_Recommend
+
+path="data/netease"
+
 class read_block:
     def __init__(self,buff_size,filename):
         self.size=buff_size
@@ -134,7 +138,6 @@ def establish_document_index(input_file,buff_size,output_file):
     del block_read
     del block_write
     print "process:establish docunment index ----->Finish"
-
 class doc_id_index:
     dic={}
     def __init__(self,index_filename,data_filename,cache_size):
@@ -242,57 +245,43 @@ class similar:
         々‖•·ˇˉ―--′’”([{£¥'"‵〈《「『【〔〖（［｛￡￥〝︵︷︹︻
         ︽︿﹁﹃﹙﹛﹝（｛“‘-—_…''')
         self.Letters_and_numbers=set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+        #读停用词文件
+        self.stopword={}
+        buff=open(path[:-7]+config.stopword_filename,'r').read()
+        pointer=lastpointer=0
+        while pointer<len(buff):
+            while buff[pointer]!='\n':
+                pointer+=1
+            self.stopword[buff[lastpointer:pointer]]=1
+            lastpointer=pointer+1
+            pointer+=1
+        del buff,lastpointer,pointer
     def calculate(self,doc_id,Top_numbers=10,multiple=10):
         title,content,url=self.index.get_data(doc_id)
         cut=jieba.cut_for_search(content)
         word_list=[]
         for word in cut:
             if  word not in self.punct and word not in self.Letters_and_numbers :
-                word_list.append(word.encode("utf-8"))
+                #计算文档间相似度，必须去停用词，否则太慢
+                if self.stopword.has_key(word.encode("utf-8")):
+                    pass
+                else:
+                    word_list.append(word.encode("utf-8"))
 	return self.FastCos.calculate(word_list,Top_numbers,multiple)
-    def write_to_file(self,total_doc_numbers,filename,buff_size=1024*1024):
-        print "process :caiculate similar files +store into file---->>>>"
-        block_write=write_block(buff_size,filename)
+    def write_to_file(self,total_doc_numbers,filename):
+        print "process :calculate similar files +store into file---->>>>"
+        block_write=write_block(config.buff_size,filename)
         for id in range(1,total_doc_numbers):
-            TopK=self.calculate(id)
+            TopK=self.calculate(id,config.recommand_numbers)
             block_write.push(str(id))
-            for j in TopK:
-                block_write.push(':'+str(j))
+            for j in TopK :
+                if j!=id:#返回的数目=config.recommand_numbers+1,返回最相似的文档号可能是文档自身
+                    block_write.push(':'+str(j))
             block_write.push('|')
+            print id
         block_write.close()
         del block_write
         print "process :caiculate similar files +store into file---->>>>Finish"
-    def get_from_file(self,similar_filename):
-        self.dic={}
-        file=open(similar_filename,'r')
-        buff=file.read()
-        pointer=last_pointer=0
-        if  ord(buff[0])==0xEF and  ord(buff[1])==0xBB and ord(buff[2])==0xbf : #####解决BOM问题
-            pointer=last_pointer=3
-        while True:
-            if pointer==len(buff)-1:
-                break
-            #doc_id
-            while True:
-                if buff[pointer]==':':
-                    break
-                pointer+=1
-            doc_id=buff[last_pointer:pointer]
-            last_pointer=pointer+1
-            similar_id=[]
-            while True:
-                #similar_doc_id
-                pointer+=1
-                while True:
-                    if buff[pointer]==':' or buff[pointer]=='|':
-                        break
-                    pointer+=1
-                similar_id.append(int(buff[last_pointer:pointer]))
-                last_pointer = pointer + 1
-                if buff[pointer]=='|':
-                    break
-            self.dic[int(doc_id)]=similar_id
-        file.close()
     def close(self):
         del self.FastCos,self.index,self.punct,self.Letters_and_numbers
 

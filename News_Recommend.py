@@ -4,6 +4,9 @@
 '''
 import Dictionary
 import math
+import config
+
+path="data/netease"
 class max_queue:
     '''
     用最大堆实现的优先队列
@@ -224,9 +227,21 @@ class FastCosineScore:
                                     检索时，仅计算某些词项的胜者表中包含的文档集合的并集
                                     从这个集合中选出top K作为最终的top K
     '''
-    def __init__(self,dic_filename,inverted_index_filename,cache_size,doc_total_numbers=100000):
+    def __init__(self,dic_filename,inverted_index_filename,cache_size,stopword_filename,doc_total_numbers=100000):
         self.dictionary=Dictionary.dictionary(dic_filename,inverted_index_filename,cache_size)
         self.N=doc_total_numbers
+
+        self.stopword={}
+        buff=open(stopword_filename,'r').read()
+        pointer=lastpointer=0
+        while pointer<len(buff):
+            while buff[pointer]!='\n':
+                pointer+=1
+            self.stopword[buff[lastpointer:pointer]]=1
+            lastpointer=pointer+1
+            pointer+=1
+        del buff,lastpointer,pointer
+
     def calculate(self,query_token_list,Top_numbers=10,multiple=10):
         '''
         查询词项：w=log(N/df)
@@ -276,3 +291,35 @@ class FastCosineScore:
             topK.append(id)
         del doc,scores,w_query,position
         return topK
+
+    def get_from_file(self,similar_filename):
+        self.dic={}
+        file=open(similar_filename,'r')
+        buff=file.read()
+        pointer=last_pointer=0
+        if  ord(buff[0])==0xEF and  ord(buff[1])==0xBB and ord(buff[2])==0xbf : #####解决BOM问题
+            pointer=last_pointer=3
+        while True:
+            if pointer==len(buff)-1:
+                break
+            #doc_id
+            while True:
+                if buff[pointer]==':':
+                    break
+                pointer+=1
+            doc_id=buff[last_pointer:pointer]
+            last_pointer=pointer+1
+            similar_id=[]
+            while True:
+                #similar_doc_id
+                pointer+=1
+                while True:
+                    if buff[pointer]==':' or buff[pointer]=='|':
+                        break
+                    pointer+=1
+                similar_id.append(int(buff[last_pointer:pointer]))
+                last_pointer = pointer + 1
+                if buff[pointer]=='|':
+                    break
+            self.dic[int(doc_id)]=similar_id
+        file.close()

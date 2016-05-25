@@ -3,6 +3,8 @@
 query_return_numbers=20
 #针对查询 返回的每条摘要长度
 query_return_snipper_size=200
+#针对某项查询 推荐的相似文档数目
+recommand_numbers=3
 
 #按块读取文件，块大小 :用于read_block() write_bloack(),针对只需读写一遍的大文件
 buff_size=1024*1024*10
@@ -40,3 +42,8 @@ index_filename="_index.txt"
 #格式：doc_id:相似网页id：相似网页id|
 #编码：utf-8
 similar_filename="_similar.txt"
+#存储停用词 文件名
+#格式：停用词/n
+#注意 文件名前无前缀
+#编码：utf-8
+stopword_filename="stopword.txt"
