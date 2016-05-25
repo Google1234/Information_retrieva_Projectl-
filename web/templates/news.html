@@ -1,0 +1,42 @@
+$def with(news)
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title>新闻聚合搜索引擎</title>
+   <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+   <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+   <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+</head>
+<body>
+<!--<div style="padding: 100px 100px 8px;margin-top:10px"> -->
+$if news:
+	<div style="margin-top:30px">
+			<div class="col-lg-6 col-lg-offset-1">
+				<div class="panel panel-info">
+   					<div class="panel-heading">
+					$news['time']    $news['title']
+   					</div>
+	   				<div class="panel-body">
+						 $news['content']
+					<br><br>
+					原始网页链接:<a href=$news['url']>$news['url']</a>
+	   				</div>
+				</div>
+			</div>
+			<div class="col-lg-2 col-lg-offset-1">
+				<div class= "panel panel-primary">
+					<div class="panel-heading">相关新闻</div>
+					<div class= "panel-body">
+					<ul>
+						<li>AAAA</li>
+						<li>BBBB</li>
+						<li>CCCC</li>
+					</ul>
+					</div>
+				</div>
+			</div>
+	</div>
+
+</body>
+</html>

@@ -34,7 +34,7 @@ class write_block:
 class neteaseSpider(scrapy.spiders.Spider):
     crawl_number=100000                          #需要爬取网页的数目
     write_data_file='data/netease_data.txt'
-    write_crawled_weburl_file='data/netease_dict.txt'
+    write_crawled_weburl_file='data/netease_url.txt'
     write_buff_size=1024*1024*10
     name = "netease"#网易
     domains = "http://news.163.com/"
