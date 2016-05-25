@@ -3,6 +3,7 @@
 #使用教程
   依赖项目：
     scrapy 安装方法：pip install Scrapy
+    
     webpy  安装方法：sudo easy_install web.py 官方网站：http://webpy.org/
 #使用方法：
     交互式查询：linux下cd 至web/ 文件夹下
@@ -10,4 +11,5 @@
                 浏览器中打开：http://0.0.0.0:8080/
 参考文献：
   1.scrapy手册 http://scrapy-chs.readthedocs.org/zh_CN/1.0/intro/tutorial.html
+  
   2.webpy 手册 http://webpy.org/
