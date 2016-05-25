@@ -3,6 +3,7 @@
 #依赖项
     scrapy 安装方法：pip install Scrapy
     webpy  安装方法：sudo easy_install web.py 官方网站：http://webpy.org/
+    jieba  安装方法：pip install jieba        官方网站：https://pypi.python.org/pypi/jieba
     
     数据10万条网易新闻网页、倒排索引等数据 baidu网盘https://pan.baidu.com/s/1pLvOrR9 提取码：h7x6
         下载后，将data文件夹放在Information_retrieva_Projectl-目录下即可
