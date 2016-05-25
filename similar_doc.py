@@ -1,4 +1,6 @@
 #-*- coding: UTF-8 -*-
+import jieba
+import News_Recommend
 class read_block:
     def __init__(self,buff_size,filename):
         self.size=buff_size
@@ -200,28 +202,28 @@ class doc_id_index:
                 self.cache_pointer=begin_location
         pointer=last_pointer=begin_location-self.cache_pointer
         while True:#doc_id
-            if self.cache[pointer]=='#####':
+            if self.cache[pointer:pointer+5]=='#####':
                 break
             pointer+=1
         doc_id=self.cache[last_pointer:pointer]
         pointer+=5
         last_pointer=pointer
         while True:#title
-            if self.cache[pointer]=='#####':
+            if self.cache[pointer:pointer+5]=='#####':
                 break
             pointer+=1
         title=self.cache[last_pointer:pointer]
         pointer+=5
         last_pointer=pointer
         while True:#content
-            if self.cache[pointer]=='#####':
+            if self.cache[pointer:pointer+5]=='#####':
                 break
             pointer+=1
         content=self.cache[last_pointer:pointer]
         pointer+=5
         last_pointer=pointer
         while True:#url
-            if self.cache[pointer]=='#####':
+            if self.cache[pointer:pointer+5]=='#####':
                 break
             pointer+=1
         url=self.cache[last_pointer:pointer]
@@ -231,7 +233,67 @@ class doc_id_index:
     def close(self):
         del self.cache,self.cache_size,self.cache_pointer
         self.index_file.close()
+class similar:
+    def __init__(self,index_filename,data_filename,dic_filename,inverted_index_filename,cache_size,doc_total_numbers=100000):
+        self.FastCos=News_Recommend.FastCosineScore(dic_filename,inverted_index_filename,cache_size,doc_total_numbers)
+        self.index=doc_id_index(index_filename,data_filename,cache_size)
+        self.punct = set(u'''/+%#:!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
+        ﹔﹕﹖﹗﹚﹜﹞！），．：；？｜｝︴︶︸︺︼︾﹀﹂﹄﹏､～￠
+        々‖•·ˇˉ―--′’”([{£¥'"‵〈《「『【〔〖（［｛￡￥〝︵︷︹︻
+        ︽︿﹁﹃﹙﹛﹝（｛“‘-—_…''')
+        self.Letters_and_numbers=set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+    def calculate(self,doc_id,Top_numbers=10,multiple=10):
+        title,content,url=self.index.get_data(doc_id)
+        cut=jieba.cut_for_search(content)
+        word_list=[]
+        for word in cut:
+            if  word not in self.punct and word not in self.Letters_and_numbers :
+                word_list.append(word.encode("utf-8"))
+	return self.FastCos.calculate(word_list,Top_numbers,multiple)
+    def write_to_file(self,total_doc_numbers,filename,buff_size=1024*1024):
+        print "process :caiculate similar files +store into file---->>>>"
+        block_write=write_block(buff_size,filename)
+        for id in range(1,total_doc_numbers):
+            TopK=self.calculate(id)
+            block_write.push(str(id))
+            for j in TopK:
+                block_write.push(':'+str(j))
+            block_write.push('|')
+        block_write.close()
+        del block_write
+        print "process :caiculate similar files +store into file---->>>>Finish"
+    def get_from_file(self,similar_filename):
+        self.dic={}
+        file=open(similar_filename,'r')
+        buff=file.read()
+        pointer=last_pointer=0
+        if  ord(buff[0])==0xEF and  ord(buff[1])==0xBB and ord(buff[2])==0xbf : #####解决BOM问题
+            pointer=last_pointer=3
+        while True:
+            if pointer==len(buff)-1:
+                break
+            #doc_id
+            while True:
+                if buff[pointer]==':':
+                    break
+                pointer+=1
+            doc_id=buff[last_pointer:pointer]
+            last_pointer=pointer+1
+            similar_id=[]
+            while True:
+                #similar_doc_id
+                pointer+=1
+                while True:
+                    if buff[pointer]==':' or buff[pointer]=='|':
+                        break
+                    pointer+=1
+                similar_id.append(int(buff[last_pointer:pointer]))
+                last_pointer = pointer + 1
+                if buff[pointer]=='|':
+                    break
+            self.dic[int(doc_id)]=similar_id
+        file.close()
+    def close(self):
+        del self.FastCos,self.index,self.punct,self.Letters_and_numbers
 
-establish_document_index("data/test_data.txt",20240,"data/test_index.txt")
-dic=doc_id_index("data/test_index.txt","data/test_data.txt",20240)
-print dic.get_data(10)
+

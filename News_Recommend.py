@@ -2,10 +2,9 @@
 '''
 基于相似内容的推荐：余弦相似度
 '''
-
 import Dictionary
 import math
-class queue:
+class max_queue:
     '''
     用最大堆实现的优先队列
     '''
@@ -82,7 +81,83 @@ class queue:
         while index>0:
             self.max_quene(index)
             index-=1
-
+class min_queue:
+    '''
+    用最小堆实现的优先队列
+    '''
+    def __init__(self,a):
+        self.queue=[]
+        self.queue.append([-1,'',''])
+        self.queue.extend(a)
+        self.queue_size=len(a)
+    def output(self):
+        output=self.queue[1:self.queue_size+1]
+        print(output)
+    def insert(self,x):#将新的元素插入
+        self.queue.append(x)
+        self.queue_size+=1
+        self.change_key(x,self.queue_size)
+    def min_quene(self,index):
+        l=2*index
+        r=2*index+1
+        if l<=self.queue_size and self.queue[l][0]<self.queue[index][0]:
+            smallest=l
+        else:
+            smallest=index
+        if r<=self.queue_size and self.queue[r][0]<self.queue[smallest][0]:
+            smallest=r
+        if smallest!=index:
+            buff=self.queue[smallest]
+            self.queue[smallest]=self.queue[index]
+            self.queue[index]=buff
+            self.min_quene(smallest)
+    def minimum(self):#返回最大值
+        return self.queue[1]
+    def extract_min(self):#O(lgn) #返回并去掉最大值
+        if self.queue_size<1:
+            print('Warning:extract_max ,there is no more element in quene')
+            return -1,-1,-1
+        else:
+            buff=self.queue[1]
+            self.queue[1]=self.queue[self.queue_size]
+            self.queue_size-=1
+            self.min_quene(1)
+            return buff
+    def decrease_key(self,x,index):#将元素的值增加到k，其中k值不能小于此元素原先的值
+        if x[0]>self.queue[index][0]:
+            print('error:new key is small than current key')
+        else:
+            self.queue[index]=x
+            parent=int(index/2)
+            while parent>0 and self.queue[index][0]<self.queue[parent][0]:
+                buff=self.queue[index]
+                self.queue[index]=self.queue[parent]
+                self.queue[parent]=buff
+                index=int(index/2)
+                parent=int(index/2)
+    def increase_key(self,x,index):
+        if x[0]>self.queue[index][0]:
+            print('error:new key is bigger than current key')
+        else :
+            self.queue[index]=x
+            self.min_quene(index)
+    def change_key(self,x,index):
+        if self.queue[index][0]<x[0]:
+            self.increase_key(x,index)
+        else:
+            self.decrease_key(x,index)
+    def build_quene1(self):#利用 insert方式
+        a=self.queue[1:]
+        self.queue.clear()
+        self.queue.append(65535)
+        self.queue_size=0
+        for i in range(len(a)):
+            self.insert(a[i])
+    def build_quene2(self):#利用  max_quene方式
+        index=int(self.queue_size/2)
+        while index>0:
+            self.min_quene(index)
+            index-=1
 
 class CosineScore:
     def __init__(self,dic_filename,inverted_index_filename,cache_size,doc_total_numbers=100000):
@@ -118,17 +193,17 @@ class CosineScore:
     #for k in range(len(scores)):#没有进行 归一化处理
         #scores[k][0]=scores[k][0]/(scores[k][2]**0.5)
 
-        max_quene=queue(scores)
-        max_quene.build_quene2()
+        quene=max_queue(scores)
+        quene.build_quene2()
         topK=[]
         i=0
         while True:
-            id=max_quene.extract_max()[1]
+            id=quene.extract_max()[1]
             if id==-1 or i==Top_numbers:
                 break
             i+=1
             topK.append(id)
-        del doc,scores,term,df,doc_id,tf,w_query,position,max_quene
+        del doc,scores,term,df,doc_id,tf,w_query,position,quene
         return topK
 
 class FastCosineScore:
@@ -171,27 +246,27 @@ class FastCosineScore:
                 pass
             else:
                 invert_index.append([df,doc_id,tf])
-        max_quene=queue(invert_index)
-        max_quene.build_quene2()#按照df排序
+        quene=min_queue(invert_index)
+        quene.build_quene2()#按照df排序  降序排
         while True:
-            max=max_quene.extract_max()
-            if max[0]==-1 or len(scores)>Top_numbers*multiple:
+            min=quene.extract_min()
+            if min[0]==-1 or len(scores)>Top_numbers*multiple:
                 break
-            w_query=math.log10(self.N/max[0])
-            for j in range(len(max[1])):
-                w_d=1+math.log10(max[2][j])
-                if doc.has_key(max[1][j]):
-                    position=doc[max[1][j]]
+            w_query=math.log10(self.N/min[0])
+            for j in range(len(min[1])):
+                w_d=1+math.log10(min[2][j])
+                if doc.has_key(min[1][j]):
+                    position=doc[min[1][j]]
                     scores[position][0]+=w_d*w_query
-                    scores[position][1]=max[1][j]
+                    scores[position][1]=min[1][j]
                     scores[position][2]+=(w_d**2)
                 else:
                     position=len(scores)
-                    doc[max[1][j]]=position
-                    scores.append([w_d*w_query,max[1][j],w_d**2])
+                    doc[min[1][j]]=position
+                    scores.append([w_d*w_query,min[1][j],w_d**2])
         #for k in range(len(scores)):
             #scores[k][0]=scores[k][0]/(scores[k][2]**0.5)
-        top=queue(scores)
+        top=max_queue(scores)
         top.build_quene2()
         topK=[]
         while True:
