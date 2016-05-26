@@ -29,9 +29,8 @@ $if news:
 					<div class="panel-heading">相关新闻</div>
 					<div class= "panel-body">
 					<ul>
-						<li><a href=$news['recommand'][0][2]>$news['recommand'][0][0][:20]</a></li>
-						<li><a href=$news['recommand'][1][2]>$news['recommand'][1][0][:20]</a></li>
-						<li><a href=$news['recommand'][2][2]>$news['recommand'][2][0][:20]</a></li>
+						$for id in news['recommand']:
+							<li><a href=$id[2]>$id[0][:20]</a></li>
 					</ul>
 					</div>
 				</div>

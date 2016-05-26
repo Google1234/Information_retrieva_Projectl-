@@ -12,7 +12,7 @@ $def with(searchword,newslist)
 <!--<div style="padding: 100px 100px 8px;margin-top:10px"> -->
 <div style="margin-top:30px">
  <form class="bs-example bs-example-form" role="form">
-	 <div class="col-lg-8 col-lg-offset-2 ">
+	 <div class="col-lg-9 col-lg-offset-2 ">
 	    <div class="input-group">
 	       <input type="text" class="form-control" name="searchword" placeholder=$searchword>
 	       <span class="input-group-btn">
@@ -25,19 +25,36 @@ $def with(searchword,newslist)
 <br><br><br><br>
 
 $if len(newslist) > 0:
-	$for news in newslist:
-			<div class="col-lg-8 col-lg-offset-2">
-				<div class="panel panel-info">
-   					<div class="panel-heading">
-						    $news['title']
-   					</div>
-	   				<div class="panel-body">
-						 $news['content'] ... <a href="/news?id=$news['id']" >查看全文>>></a>
-					<br><br>
-					原始网页链接:<a href=$news['url']>$news['url']</a>
-	   				</div>
+	<div style="margin-top:30px">
+		<div class="row">
+			<div class="col-sm-2">
+				<div class="col-lg-20 col-lg-offset-2">
+						<div class="col-lg-20 col-lg-offset-2">关键词推荐:</div>
+						<ul>
+							<li><a href=AAA>中国共产党</a></li>
+							<li><a href=AAA>中华人民共和国</a></li>
+							<li><a href=AAA>习近平</a></li>
+							<li><a href=AAA>政治</a></li>
+						</ul>
 				</div>
 			</div>
+			<div class="col-sm-10">
+				$for news in newslist:
+					<div class="col-lg-11 col-lg-offset-0">
+						<div class="panel panel-info">
+							<div class="panel-heading">
+									$news['title']
+							</div>
+							<div class="panel-body">
+								 $news['content'] ... <a href="/news?id=$news['id']" >查看全文>>></a>
+							<br><br>
+							原始网页链接:<a href=$news['url']>$news['url']</a>
+							</div>
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
 $else:
 			<div class="col-lg-8 col-lg-offset-2">
 				<div class="panel panel-info">

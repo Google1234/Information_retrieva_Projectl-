@@ -2,7 +2,7 @@
 #针对查询 返回的记录数
 query_return_numbers=20
 #针对查询 返回的每条摘要长度
-query_return_snipper_size=200
+query_return_snipper_size=250
 #针对某项查询 推荐的相似文档数目
 recommand_numbers=3
 
