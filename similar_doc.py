@@ -238,7 +238,7 @@ class doc_id_index:
         self.index_file.close()
 class similar:
     def __init__(self,index_filename,data_filename,dic_filename,inverted_index_filename,cache_size,doc_total_numbers=100000):
-        self.FastCos=News_Recommend.FastCosineScore(dic_filename,inverted_index_filename,cache_size,doc_total_numbers)
+        self.FastCos=News_Recommend.FastCosineScore(dic_filename,inverted_index_filename,cache_size,path[:-7]+config.stopword_filename,doc_total_numbers)
         self.index=doc_id_index(index_filename,data_filename,cache_size)
         self.punct = set(u'''/+%#:!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
         ﹔﹕﹖﹗﹚﹜﹞！），．：；？｜｝︴︶︸︺︼︾﹀﹂﹄﹏､～￠

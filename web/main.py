@@ -11,7 +11,7 @@ import config
 path="../data/netease"
 query=News_Recommend.CosineScore(path+config.inverted_Dictionary_filename,path+config.inverted_index_filename,config.buff_size,config.crawled_web_numbers)
 recommand=News_Recommend.FastCosineScore(path+config.inverted_Dictionary_filename,path+config.inverted_index_filename,config.cache_size,path[:-7]+config.stopword_filename,config.crawled_web_numbers)
-recommand.get_from_file(path+config.similar_filename)
+#recommand.get_from_file(path+config.similar_filename)
 #query=News_Recommend.FastCosineScore(filename[:-4]+'_index_Dictionary.txt',filename[:-4]+'_inverted_index.txt',buff_size,100000)
 id_index=similar_doc.doc_id_index(path+config.index_filename,path+config.data_filename,config.cache_size)
 punct = set(u'''/+%#:!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､﹒
