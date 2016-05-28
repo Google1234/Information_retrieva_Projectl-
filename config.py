@@ -5,6 +5,8 @@ query_return_numbers=20
 query_return_snipper_size=250
 #针对某项查询 推荐的相似文档数目
 recommand_numbers=3
+#针对搜索词 推荐的相似主题数目
+recommand_topic_numbers=10
 
 #按块读取文件，块大小 :用于read_block() write_bloack(),针对只需读写一遍的大文件
 buff_size=1024*1024*10
@@ -47,3 +49,5 @@ similar_filename="_similar.txt"
 #注意 文件名前无前缀
 #编码：utf-8
 stopword_filename="stopword.txt"
+#存储训练好word2Vec 文件名
+word2Vec_filename="vectors.bin"

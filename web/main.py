@@ -7,6 +7,7 @@ import News_Recommend
 import similar_doc
 import jieba
 import config
+import word2Vec.word2vec as Word2Vec
 
 path="../data/netease"
 query=News_Recommend.CosineScore(path+config.inverted_Dictionary_filename,path+config.inverted_index_filename,config.buff_size,config.crawled_web_numbers)
@@ -20,9 +21,9 @@ punct = set(u'''/+%#:!),.:;?]}¢'"、。〉》」』】〕〗〞︰︱︳﹐､�
 ︽︿﹁﹃﹙﹛﹝（｛“‘-—_…''')
 Letters_and_numbers = set('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
 
+word2vec=Word2Vec.WORD2VEC("../",'../data/'+config.word2Vec_filename)
 
 render = web.template.render('templates/')
-
 urls=(
 	"/","index",
 	"/news","news"
@@ -39,6 +40,7 @@ class index:
         else:
             searchword=''
         news_list=list()
+        topic=list()
         if searchword:
             cut = jieba.cut_for_search(searchword)
             word_list = []
@@ -55,7 +57,15 @@ class index:
                 data['url'] = url.decode("utf-8")
                 news_list.append(data)
             del data,cut,word_list,word,topK,title,content,url
-        return render.index(searchword,news_list)
+            #word2Vec推荐相似主题
+            word2vec.cal(searchword.encode('utf-8'))
+            print word2vec.result.length
+            if word2vec.result.length==0:#词不存在，长度为1
+                pass
+            else:
+                for i in range(config.recommand_topic_numbers):
+                    topic.append(word2vec.result.word[i].char)
+        return render.index(searchword,news_list,topic)
 class news:
     def __init__(self):
         pass

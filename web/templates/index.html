@@ -1,4 +1,4 @@
-$def with(searchword,newslist)
+$def with(searchword,newslist,topic)
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,7 +16,7 @@ $def with(searchword,newslist)
 	    <div class="input-group">
 	       <input type="text" class="form-control" name="searchword" placeholder=$searchword>
 	       <span class="input-group-btn">
-			  <button class="btn btn-default" type="submit">搜索</button>
+			  <button class="btn btn-default" type="submit">给我搜</button>
 	       </span>
 	    </div><!-- /input-group -->
 	 </div><!-- /.col-lg-6 -->
@@ -31,10 +31,8 @@ $if len(newslist) > 0:
 				<div class="col-lg-20 col-lg-offset-2">
 						<div class="col-lg-20 col-lg-offset-2">关键词推荐:</div>
 						<ul>
-							<li><a href=AAA>中国共产党</a></li>
-							<li><a href=AAA>中华人民共和国</a></li>
-							<li><a href=AAA>习近平</a></li>
-							<li><a href=AAA>政治</a></li>
+							$for word in topic:
+								<li><a href=AAA>$word</a></li>
 						</ul>
 				</div>
 			</div>
