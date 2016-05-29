@@ -14,3 +14,5 @@
 #参考文献：
   1.scrapy手册 http://scrapy-chs.readthedocs.org/zh_CN/1.0/intro/tutorial.html
   2.webpy 手册 http://webpy.org/
+#运行效果
+！！！更多技术细节、学习资料请查看report文件。
