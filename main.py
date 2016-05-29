@@ -17,10 +17,7 @@ buff_size=1024*1024*10
 output_record_size=10000
 filename="data/netease_data.txt"
 inverted_files.make_inverted_index(filename,buff_size,output_record_size,100000)
-'''
-
 #part :构建网页id索引
-'''
 buff_size=1024*1024*10
 similar_doc.establish_document_index("data/netease_data.txt",buff_size,"data/netease_index.txt")
 '''
@@ -54,10 +51,10 @@ for i in topk:
 '''
 
 #part :保存相似的文档至文件
-
+'''
 path="data/netease"
 s=similar_doc.similar(path+config.index_filename,path+config.data_filename,path+config.inverted_Dictionary_filename,path+config.inverted_index_filename,config.buff_size)
 s.write_to_file(config.crawled_web_numbers,path+config.similar_filename)
-
+'''
 
 
