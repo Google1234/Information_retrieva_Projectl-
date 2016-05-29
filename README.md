@@ -15,4 +15,9 @@
   1.scrapy手册 http://scrapy-chs.readthedocs.org/zh_CN/1.0/intro/tutorial.html
   2.webpy 手册 http://webpy.org/
 #运行效果
+![image](https://github.com/Google1234/Information_retrieva_Projectl-/raw/master/screenshot/2016-05-29%2020_40_30____________.png)
+![image](https://github.com/Google1234/Information_retrieva_Projectl-/raw/master/screenshot/2016-05-29%20011426%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png)
+![image](https://github.com/Google1234/Information_retrieva_Projectl-/raw/master/screenshot/2016-05-29%2015_59_57____________.png)
+![image](https://github.com/Google1234/Information_retrieva_Projectl-/raw/master/screenshot/2016-05-29%2020_10_07____________.png)
+![image](https://github.com/Google1234/Information_retrieva_Projectl-/raw/master/screenshot/2016-05-29%20011426%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png)
 ！！！更多技术细节、学习资料请查看report文件。
