@@ -1,11 +1,11 @@
 #data file 
-data/netease_data.txt
-data/netease_data_inverted_Dictionary.txt
-data/netease_data_inverted_index.txt
-data/netease_index.txt
-data/netease_similar.txt
-data/netease_url.txt
-data/vectors.bin
+netease_data.txt
+netease_data_inverted_Dictionary.txt
+netease_data_inverted_index.txt
+netease_index.txt
+netease_similar.txt
+netease_url.txt
+vectors.bin
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
