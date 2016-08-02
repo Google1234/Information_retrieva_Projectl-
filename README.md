@@ -5,7 +5,7 @@
     webpy  安装方法：sudo easy_install web.py 官方网站：http://webpy.org/
     jieba  安装方法：pip install jieba        官方网站：https://pypi.python.org/pypi/jieba
     
-    数据10万条网易新闻网页、倒排索引等数据 baidu网盘https://pan.baidu.com/s/1pLvOrR9 提取码：h7x6
+    数据10万条网易新闻网页、倒排索引等数据 baidu网盘http://pan.baidu.com/s/1gfkDb4B 
         下载后，将data文件夹放在Information_retrieva_Projectl-目录下即可
 #使用方法：
     交互式查询：linux下cd 至web/ 文件夹下
